@@ -530,7 +530,7 @@
                     <div class="review-timer-fill" id="reviewTimerFill"></div>
                 </div>
                 
-                <div style="opacity: 0.7; font-size: 0.85rem;">各単語を1秒間表示します</div>
+                <div style="opacity: 0.7; font-size: 0.85rem;">各単語を発音します（タップで音声開始）</div>
             </div>
 
             <div class="game-ui" id="gameUI">
@@ -621,8 +621,97 @@
             questionStartTime: 0,
             spawnInterval: 1000,
             usedWords: [],
-            currentOptions: []
+            currentOptions: [],
+            // 音声関連
+            audioContext: null,
+            isSpeechSupported: false
         };
+
+        // 音声初期化
+        function initAudio() {
+            try {
+                // Web Audio API初期化
+                gameState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 音声合成API確認
+                gameState.isSpeechSupported = 'speechSynthesis' in window;
+                
+                console.log('Audio initialized successfully');
+            } catch (error) {
+                console.warn('Audio initialization failed:', error);
+            }
+        }
+
+        // 効果音生成
+        function playSound(type) {
+            try {
+                if (!gameState.audioContext) return;
+
+                const oscillator = gameState.audioContext.createOscillator();
+                const gainNode = gameState.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(gameState.audioContext.destination);
+
+                if (type === 'correct') {
+                    // 正解音：上昇音階
+                    oscillator.frequency.setValueAtTime(523.25, gameState.audioContext.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, gameState.audioContext.currentTime + 0.1); // E5
+                    oscillator.frequency.setValueAtTime(783.99, gameState.audioContext.currentTime + 0.2); // G5
+                    oscillator.type = 'triangle';
+                    gainNode.gain.setValueAtTime(0.3, gameState.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, gameState.audioContext.currentTime + 0.4);
+                    
+                    oscillator.start(gameState.audioContext.currentTime);
+                    oscillator.stop(gameState.audioContext.currentTime + 0.4);
+                } else if (type === 'wrong') {
+                    // 不正解音：下降音
+                    oscillator.frequency.setValueAtTime(415.30, gameState.audioContext.currentTime); // G#4
+                    oscillator.frequency.setValueAtTime(311.13, gameState.audioContext.currentTime + 0.15); // D#4
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.2, gameState.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, gameState.audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(gameState.audioContext.currentTime);
+                    oscillator.stop(gameState.audioContext.currentTime + 0.3);
+                }
+            } catch (error) {
+                console.warn('Sound playback failed:', error);
+            }
+        }
+
+        // 英単語発音
+        function speakWord(word, callback) {
+            try {
+                if (!gameState.isSpeechSupported) {
+                    console.warn('Speech synthesis not supported');
+                    if (callback) setTimeout(callback, 1500); // フォールバック
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+
+                utterance.onend = () => {
+                    if (callback) setTimeout(callback, 300); // 少し間を置く
+                };
+
+                utterance.onerror = () => {
+                    console.warn('Speech synthesis error');
+                    if (callback) setTimeout(callback, 1500); // フォールバック
+                };
+
+                // 前の発音をキャンセル
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            } catch (error) {
+                console.warn('Speech failed:', error);
+                if (callback) setTimeout(callback, 1500); // フォールバック
+            }
+        }
 
         function showError(message) {
             console.error(message);
@@ -647,6 +736,9 @@
                 if (typeof THREE === 'undefined') {
                     throw new Error('Three.js library not loaded');
                 }
+
+                // 音声初期化
+                initAudio();
 
                 gameState.scene = new THREE.Scene();
                 gameState.scene.background = new THREE.Color(0x87CEEB);
@@ -850,6 +942,11 @@
 
         function startGame() {
             try {
+                // 音声コンテキストを有効化（ユーザーインタラクション後）
+                if (gameState.audioContext && gameState.audioContext.state === 'suspended') {
+                    gameState.audioContext.resume();
+                }
+                
                 startReviewTime();
             } catch (error) {
                 showError('ゲーム開始に失敗しました: ' + error.message);
@@ -891,19 +988,16 @@
                 document.getElementById('reviewJapanese').textContent = word.japanese;
                 document.getElementById('reviewProgress').textContent = `${index + 1} / 10`;
 
+                // プログレスバーを非表示にして音声ベースに
                 const timerFill = document.getElementById('reviewTimerFill');
                 timerFill.style.width = '100%';
                 
-                let progress = 100;
-                const interval = setInterval(() => {
-                    progress -= 10;
-                    timerFill.style.width = progress + '%';
-                    
-                    if (progress <= 0) {
-                        clearInterval(interval);
-                        setTimeout(() => showReviewWord(index + 1), 100);
-                    }
-                }, 100);
+                // 英単語を発音してから次へ
+                speakWord(word.english, () => {
+                    // 発音完了後、次の単語へ
+                    timerFill.style.width = '0%';
+                    setTimeout(() => showReviewWord(index + 1), 200);
+                });
 
             } catch (error) {
                 showError('おさらい単語表示に失敗しました: ' + error.message);
@@ -969,9 +1063,13 @@
 
                 updateQuestionDisplay(correctWord);
                 startProgressBar();
+                
+                // 8秒間必ず継続するモグラ出現システム開始
                 startContinuousMoleSpawning();
 
+                // 8秒後に必ず次の問題（正解しても継続）
                 gameState.questionTimer = setTimeout(() => {
+                    // 時間切れで次の問題へ
                     nextQuestion();
                 }, 8000);
 
@@ -1093,7 +1191,10 @@
                 if (gameState.moleSpawnTimer) {
                     clearTimeout(gameState.moleSpawnTimer);
                 }
+                
+                // 最初に1匹だけ出現
                 spawnSingleMole();
+                
             } catch (error) {
                 showError('連続モグラ出現の開始に失敗しました: ' + error.message);
             }
@@ -1121,7 +1222,8 @@
                     mole.userData.isActive = true;
                     gameState.activeMoles.push(randomHoleIndex);
                     
-                    const visibleTime = Math.floor((800 + Math.random() * 700) * 1.25);
+                    // モグラの表示時間を調整（1.5-2.5秒）
+                    const visibleTime = 1500 + Math.random() * 1000;
                     setTimeout(() => {
                         if (mole.userData && mole.userData.isActive) {
                             mole.userData.isActive = false;
@@ -1131,8 +1233,9 @@
                     }, visibleTime);
                 }
 
+                // 8秒間継続だが、適度な間隔で出現（600-1000ms間隔）
                 if (gameState.isPlaying) {
-                    const nextSpawnTime = Math.max(375, Math.floor((gameState.spawnInterval - 200) * 1.25));
+                    const nextSpawnTime = 600 + Math.random() * 400;
                     gameState.moleSpawnTimer = setTimeout(spawnSingleMole, nextSpawnTime);
                 }
             } catch (error) {
@@ -1186,10 +1289,15 @@
 
         function nextQuestion() {
             try {
-                gameState.currentQuestion++;
-                gameState.level = Math.floor(gameState.currentQuestion / 2) + 1;
-                gameState.spawnInterval = Math.max(250, Math.floor((800 - (gameState.level - 1) * 80) * 1.25));
+                // 前のタイマーとモグラをクリア
+                if (gameState.progressTimer) {
+                    clearInterval(gameState.progressTimer);
+                }
+                if (gameState.moleSpawnTimer) {
+                    clearTimeout(gameState.moleSpawnTimer);
+                }
                 
+                // 全モグラを隠す
                 gameState.moles.forEach(mole => {
                     if (mole && mole.userData) {
                         mole.userData.isActive = false;
@@ -1198,16 +1306,17 @@
                 });
                 gameState.activeMoles = [];
                 
-                if (gameState.progressTimer) {
-                    clearInterval(gameState.progressTimer);
-                }
-                if (gameState.moleSpawnTimer) {
-                    clearTimeout(gameState.moleSpawnTimer);
-                }
+                // 問題カウントを進める
+                gameState.currentQuestion++;
+                gameState.level = Math.floor(gameState.currentQuestion / 2) + 1;
                 
+                // 少し間を置いてから次の問題を生成
                 setTimeout(() => {
-                    generateQuestion();
-                }, 1000);
+                    if (gameState.isPlaying) {
+                        generateQuestion();
+                    }
+                }, 500);
+                
             } catch (error) {
                 showError('次の問題への移行に失敗しました: ' + error.message);
             }
@@ -1241,6 +1350,12 @@
         function onTouchStart(event) {
             try {
                 event.preventDefault();
+                
+                // 音声コンテキストを有効化
+                if (gameState.audioContext && gameState.audioContext.state === 'suspended') {
+                    gameState.audioContext.resume();
+                }
+                
                 if (event.touches.length > 0) {
                     const touch = event.touches[0];
                     const fakeEvent = {
@@ -1273,18 +1388,12 @@
                     const scoreElement = document.getElementById('scoreDisplay');
                     if (scoreElement) scoreElement.textContent = gameState.score;
                     
+                    // 正解音を再生
+                    playSound('correct');
                     showFeedback(mole.position, `+${points}`, "correct");
                     
-                    if (gameState.questionTimer) {
-                        clearTimeout(gameState.questionTimer);
-                    }
-                    if (gameState.moleSpawnTimer) {
-                        clearTimeout(gameState.moleSpawnTimer);
-                    }
-                    
-                    setTimeout(() => {
-                        nextQuestion();
-                    }, 1000);
+                    // 正解してもタイマーはそのまま継続（8秒間は必ず継続）
+                    // モグラの出現も継続
                     
                 } else {
                     gameState.mistakes++;
@@ -1295,13 +1404,19 @@
                     const scoreElement = document.getElementById('scoreDisplay');
                     if (scoreElement) scoreElement.textContent = gameState.score;
                     
+                    // 不正解音を再生
+                    playSound('wrong');
                     updateMistakesDisplay();
                     showFeedback(mole.position, `-${penalty}`, "wrong");
                     
                     if (gameState.mistakes >= 3) {
                         endGame(false);
+                        return;
                     }
                 }
+                
+                // モグラは継続して出現（8秒間は止まらない）
+                
             } catch (error) {
                 showError('モグラヒット処理に失敗しました: ' + error.message);
             }
