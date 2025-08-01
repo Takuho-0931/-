@@ -690,26 +690,89 @@
                 }
 
                 const utterance = new SpeechSynthesisUtterance(word);
+                
+                // ネイティブ音声設定
                 utterance.lang = 'en-US';
-                utterance.rate = 0.8;
+                utterance.rate = 0.9;  // 少し遅めでクリアに
                 utterance.pitch = 1.0;
-                utterance.volume = 0.8;
+                utterance.volume = 0.9;
+                
+                // ネイティブ音声を探して設定
+                const voices = speechSynthesis.getVoices();
+                let nativeVoice = null;
+                
+                // 優先順位でネイティブ音声を選択
+                const nativeVoiceNames = [
+                    'Samantha',           // macOS
+                    'Alex',               // macOS
+                    'Karen',              // Windows
+                    'Microsoft Zira',     // Windows
+                    'Google US English',  // Chrome
+                    'en-US'              // 汎用
+                ];
+                
+                for (let voiceName of nativeVoiceNames) {
+                    nativeVoice = voices.find(voice => 
+                        voice.name.includes(voiceName) && 
+                        voice.lang.startsWith('en')
+                    );
+                    if (nativeVoice) break;
+                }
+                
+                // よりネイティブに近い音声を探す
+                if (!nativeVoice) {
+                    nativeVoice = voices.find(voice => 
+                        voice.lang === 'en-US' && 
+                        voice.localService === true
+                    );
+                }
+                
+                // 最終的にen-USの音声を選択
+                if (!nativeVoice) {
+                    nativeVoice = voices.find(voice => voice.lang.startsWith('en-US'));
+                }
+                
+                if (nativeVoice) {
+                    utterance.voice = nativeVoice;
+                    console.log('Using voice:', nativeVoice.name, nativeVoice.lang);
+                }
 
                 utterance.onend = () => {
-                    if (callback) setTimeout(callback, 300); // 少し間を置く
+                    if (callback) setTimeout(callback, 300);
                 };
 
                 utterance.onerror = () => {
                     console.warn('Speech synthesis error');
-                    if (callback) setTimeout(callback, 1500); // フォールバック
+                    if (callback) setTimeout(callback, 1500);
                 };
 
                 // 前の発音をキャンセル
                 speechSynthesis.cancel();
-                speechSynthesis.speak(utterance);
+                
+                // 少し待ってから発音（音声エンジン準備のため）
+                setTimeout(() => {
+                    speechSynthesis.speak(utterance);
+                }, 100);
+                
             } catch (error) {
                 console.warn('Speech failed:', error);
-                if (callback) setTimeout(callback, 1500); // フォールバック
+                if (callback) setTimeout(callback, 1500);
+            }
+        }
+
+        // 音声リストを初期化（ページ読み込み時）
+        function initVoices() {
+            if ('speechSynthesis' in window) {
+                // 音声リストの読み込み完了を待つ
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.addEventListener('voiceschanged', () => {
+                        const voices = speechSynthesis.getVoices();
+                        console.log('Available voices:', voices.filter(v => v.lang.startsWith('en')));
+                    });
+                } else {
+                    const voices = speechSynthesis.getVoices();
+                    console.log('Available voices:', voices.filter(v => v.lang.startsWith('en')));
+                }
             }
         }
 
@@ -739,6 +802,8 @@
 
                 // 音声初期化
                 initAudio();
+                // ネイティブ音声初期化
+                initVoices();
 
                 gameState.scene = new THREE.Scene();
                 gameState.scene.background = new THREE.Color(0x87CEEB);
