@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
             overflow: hidden;
+            touch-action: manipulation;
         }
 
         #gameContainer {
@@ -49,15 +50,17 @@
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            max-width: 90%;
+            width: 100%;
             max-width: 600px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 2rem;
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             background: linear-gradient(45deg, #FFD700, #FFA500);
             -webkit-background-clip: text;
@@ -66,52 +69,54 @@
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            font-size: 1rem;
+            margin-bottom: 20px;
             opacity: 0.9;
             line-height: 1.5;
         }
 
         .rules {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             line-height: 1.6;
         }
 
         .rules h3 {
             color: #FFD700;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 1rem;
         }
 
         .vocabulary-section {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
-            max-height: 300px;
+            margin-bottom: 15px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
         .vocabulary-section h3 {
             color: #FFD700;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
+            font-size: 1rem;
         }
 
         .word-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
         }
 
         .word-item {
             background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             text-align: center;
             border: 1px solid rgba(255, 215, 0, 0.3);
             transition: all 0.3s ease;
@@ -125,24 +130,24 @@
         .word-english {
             font-weight: bold;
             color: #FFD700;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            font-size: 0.95rem;
+            margin-bottom: 3px;
         }
 
         .word-japanese {
             color: #ffffff;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .toggle-vocabulary {
             background: rgba(255, 215, 0, 0.2);
             color: #FFD700;
             border: 1px solid #FFD700;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
             transition: all 0.3s ease;
         }
 
@@ -154,9 +159,9 @@
             background: linear-gradient(45deg, #FF6B6B, #FF8E53);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            border-radius: 40px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
@@ -174,61 +179,63 @@
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            max-width: 90%;
+            width: 100%;
             max-width: 600px;
             display: none;
         }
 
         .review-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: #FFD700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .review-subtitle {
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            font-size: 1rem;
+            margin-bottom: 20px;
             opacity: 0.9;
         }
 
         .review-word-display {
             background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
+            padding: 25px 15px;
             border-radius: 15px;
-            margin-bottom: 20px;
-            min-height: 120px;
+            margin-bottom: 15px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
         .review-english {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: #FFD700;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .review-japanese {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: #ffffff;
         }
 
         .review-progress {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
+            font-size: 1rem;
+            margin-bottom: 15px;
             color: #FFD700;
         }
 
         .review-timer {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .review-timer-fill {
@@ -237,67 +244,76 @@
             transition: width 0.1s linear;
         }
 
+        /* ゲーム画面のUI - スマホ対応 */
         .game-ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 70%, transparent 100%);
+            padding: 10px;
+            z-index: 200;
             display: none;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
         }
 
         .game-stats {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
         }
 
         .stat-item {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.75rem;
             font-weight: bold;
             backdrop-filter: blur(10px);
+            white-space: nowrap;
         }
 
         .stage-display {
-            background: rgba(255, 215, 0, 0.2);
+            background: rgba(255, 215, 0, 0.3);
             color: #FFD700;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.7rem;
             border: 1px solid #FFD700;
         }
 
         .question-display {
             text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 12px;
+            border-radius: 12px;
             backdrop-filter: blur(10px);
+            margin: 0 5px;
         }
 
         .question-japanese {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             color: #FFD700;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
         }
 
         .question-instruction {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             opacity: 0.9;
+            margin-bottom: 8px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
-            margin-top: 10px;
         }
 
         .progress-fill {
@@ -308,19 +324,25 @@
 
         .mistakes-indicator {
             display: flex;
-            gap: 5px;
+            gap: 2px;
             align-items: center;
         }
 
         .mistake-heart {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             color: #FF6B6B;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
         }
 
         .mistake-heart.lost {
             opacity: 0.3;
+        }
+
+        /* 3Dキャンバスエリア - ゲーム画面時の調整 */
+        .game-canvas {
+            margin-top: 120px;
+            height: calc(100vh - 120px);
         }
 
         .result-screen {
@@ -330,16 +352,18 @@
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             display: none;
+            max-width: 90%;
+            width: 100%;
             max-width: 500px;
         }
 
         .result-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 2rem;
+            margin-bottom: 15px;
         }
 
         .result-title.success {
@@ -352,21 +376,23 @@
 
         .result-stats {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            margin: 20px 0;
+            margin: 15px 0;
+            font-size: 0.9rem;
         }
 
         .result-message {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
+            font-size: 1rem;
+            margin-bottom: 20px;
             opacity: 0.9;
+            line-height: 1.4;
         }
 
         .feedback-effect {
             position: absolute;
             font-weight: bold;
-            font-size: 2rem;
+            font-size: 1.5rem;
             pointer-events: none;
             z-index: 1000;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -387,40 +413,74 @@
             }
             100% {
                 opacity: 0;
-                transform: scale(1.5) translateY(-50px);
+                transform: scale(1.5) translateY(-40px);
             }
         }
 
         .error-message {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 0, 0, 0.8);
+            background: rgba(255, 0, 0, 0.9);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 5px;
-            font-size: 14px;
-            z-index: 1000;
+            font-size: 0.8rem;
+            z-index: 2000;
+            max-width: 90%;
         }
 
+        /* スマホ専用の調整 */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
             
-            .start-screen, .result-screen {
-                padding: 30px 20px;
+            .start-screen, .result-screen, .review-screen {
+                padding: 20px 15px;
                 width: 95%;
             }
             
             .question-japanese {
-                font-size: 2rem;
+                font-size: 1.5rem;
+            }
+            
+            .review-english {
+                font-size: 1.8rem;
             }
             
             .game-stats {
-                flex-wrap: wrap;
-                gap: 10px;
+                justify-content: center;
+            }
+            
+            .stat-item {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
+            
+            .question-display {
+                padding: 10px 8px;
+            }
+        }
+
+        /* 極小画面用 */
+        @media (max-width: 480px) {
+            .game-ui {
+                padding: 8px;
+            }
+            
+            .game-canvas {
+                margin-top: 110px;
+                height: calc(100vh - 110px);
+            }
+            
+            .question-japanese {
+                font-size: 1.3rem;
+            }
+            
+            .stat-item {
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -470,7 +530,7 @@
                     <div class="review-timer-fill" id="reviewTimerFill"></div>
                 </div>
                 
-                <div style="opacity: 0.7;">各単語を1秒間表示します</div>
+                <div style="opacity: 0.7; font-size: 0.85rem;">各単語を1秒間表示します</div>
             </div>
 
             <div class="game-ui" id="gameUI">
@@ -591,12 +651,13 @@
                 gameState.scene = new THREE.Scene();
                 gameState.scene.background = new THREE.Color(0x87CEEB);
 
+                // カメラ位置をスマホ向けに調整
                 gameState.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                gameState.camera.position.set(0, 8, 8);
-                gameState.camera.lookAt(0, 0, 0);
+                gameState.camera.position.set(0, 10, 6);
+                gameState.camera.lookAt(0, -1, 0);
 
                 gameState.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-                gameState.renderer.setSize(window.innerWidth, window.innerHeight);
+                updateCanvasSize();
                 gameState.renderer.shadowMap.enabled = true;
                 gameState.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -623,6 +684,7 @@
                 createHolesAndMoles();
 
                 canvas.addEventListener('click', onMouseClick);
+                canvas.addEventListener('touchstart', onTouchStart);
                 canvas.addEventListener('mousemove', onMouseMove);
                 window.addEventListener('resize', onWindowResize);
 
@@ -632,6 +694,23 @@
             } catch (error) {
                 showError('3Dシーンの初期化に失敗しました: ' + error.message);
             }
+        }
+
+        function updateCanvasSize() {
+            const gameUI = document.getElementById('gameUI');
+            const isGameScreen = gameUI && gameUI.style.display !== 'none';
+            
+            if (isGameScreen) {
+                // ゲーム画面: UIの高さ分を除いた領域
+                const uiHeight = 120;
+                gameState.renderer.setSize(window.innerWidth, window.innerHeight - uiHeight);
+                gameState.camera.aspect = window.innerWidth / (window.innerHeight - uiHeight);
+            } else {
+                // その他の画面: 全画面
+                gameState.renderer.setSize(window.innerWidth, window.innerHeight);
+                gameState.camera.aspect = window.innerWidth / window.innerHeight;
+            }
+            gameState.camera.updateProjectionMatrix();
         }
 
         function createHolesAndMoles() {
@@ -796,6 +875,12 @@
                 if (index >= gameState.reviewWords.length) {
                     document.getElementById('reviewScreen').style.display = 'none';
                     document.getElementById('gameUI').style.display = 'flex';
+                    
+                    // キャンバスにゲーム用クラスを追加
+                    const canvas = document.getElementById('threeCanvas');
+                    canvas.className = 'game-canvas';
+                    updateCanvasSize();
+                    
                     gameState.isReviewTime = false;
                     actualStartGame();
                     return;
@@ -955,16 +1040,16 @@
                 effect.style.top = '50%';
                 effect.style.left = '50%';
                 effect.style.transform = 'translate(-50%, -50%)';
-                effect.style.fontSize = '3rem';
+                effect.style.fontSize = '2.5rem';
                 effect.style.color = '#FFD700';
                 effect.style.fontWeight = 'bold';
                 effect.style.zIndex = '2000';
                 effect.style.textAlign = 'center';
-                effect.style.background = 'rgba(0, 0, 0, 0.8)';
-                effect.style.padding = '40px';
+                effect.style.background = 'rgba(0, 0, 0, 0.9)';
+                effect.style.padding = '30px';
                 effect.style.borderRadius = '20px';
                 effect.style.backdropFilter = 'blur(10px)';
-                effect.innerHTML = '🎉 ステージ2<br><span style="font-size: 1.5rem;">英語 → 日本語</span>';
+                effect.innerHTML = '🎉 ステージ2<br><span style="font-size: 1.2rem;">英語 → 日本語</span>';
                 
                 document.body.appendChild(effect);
                 
@@ -1153,6 +1238,22 @@
             }
         }
 
+        function onTouchStart(event) {
+            try {
+                event.preventDefault();
+                if (event.touches.length > 0) {
+                    const touch = event.touches[0];
+                    const fakeEvent = {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    };
+                    onMouseClick(fakeEvent);
+                }
+            } catch (error) {
+                showError('タッチ処理に失敗しました: ' + error.message);
+            }
+        }
+
         function hitMole(index) {
             try {
                 const mole = gameState.moles[index];
@@ -1210,7 +1311,7 @@
             try {
                 const vector = position.clone().project(gameState.camera);
                 const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+                const y = (vector.y * -0.5 + 0.5) * window.innerHeight + 120; // UI分を考慮
                 
                 const effect = document.createElement('div');
                 effect.className = `feedback-effect feedback-${type}`;
@@ -1256,7 +1357,7 @@
                     
                     gameState.camera.position.x += deltaX;
                     gameState.camera.position.y -= deltaY;
-                    gameState.camera.lookAt(0, 0, 0);
+                    gameState.camera.lookAt(0, -1, 0);
                 }
             } catch (error) {
                 console.error('マウス移動エラー:', error);
@@ -1266,9 +1367,7 @@
         function onWindowResize() {
             try {
                 if (gameState.camera && gameState.renderer) {
-                    gameState.camera.aspect = window.innerWidth / window.innerHeight;
-                    gameState.camera.updateProjectionMatrix();
-                    gameState.renderer.setSize(window.innerWidth, window.innerHeight);
+                    updateCanvasSize();
                 }
             } catch (error) {
                 console.error('ウィンドウリサイズエラー:', error);
@@ -1335,6 +1434,11 @@
                 
                 document.getElementById('gameUI').style.display = 'none';
                 document.getElementById('resultScreen').style.display = 'block';
+                
+                // キャンバスを通常表示に戻す
+                const canvas = document.getElementById('threeCanvas');
+                canvas.className = '';
+                updateCanvasSize();
                 
                 const resultTitle = document.getElementById('resultTitle');
                 const resultMessage = document.getElementById('resultMessage');
@@ -1408,6 +1512,11 @@
                 if (vocabularySection) vocabularySection.style.display = 'none';
                 if (toggleButton) toggleButton.textContent = '📚 出題単語を確認する';
                 
+                // キャンバスを通常表示に戻す
+                const canvas = document.getElementById('threeCanvas');
+                canvas.className = '';
+                updateCanvasSize();
+                
                 if (gameState.questionTimer) {
                     clearTimeout(gameState.questionTimer);
                     gameState.questionTimer = null;
@@ -1445,4 +1554,3 @@
     </script>
 </body>
 </html>
-                        
