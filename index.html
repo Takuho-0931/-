@@ -13,32 +13,32 @@
     .ui-overlay > * { pointer-events: auto; }
 
     /* アカウント関連UI */
-    .account-section { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); border-radius: 10px; padding: 8px 12px; backdrop-filter: blur(5px); z-index: 300; }
-    .account-info { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
-    .account-info img { width: 24px; height: 24px; border-radius: 50%; }
-    .login-btn, .logout-btn { background: #4285f4; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: .75rem; }
+    .account-section { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.85); border-radius: 8px; padding: 6px 10px; backdrop-filter: blur(5px); z-index: 300; font-size: 0.7rem; }
+    .account-info { display: flex; align-items: center; gap: 6px; font-size: .7rem; }
+    .account-info img { width: 20px; height: 20px; border-radius: 50%; }
+    .login-btn, .logout-btn { background: #4285f4; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: .65rem; }
     .logout-btn { background: #db4437; }
-    .user-stats { font-size: .7rem; opacity: .8; margin-top: 4px; }
+    .user-stats { font-size: .6rem; opacity: .8; margin-top: 2px; }
 
     /* ユーザー名設定画面 */
-    .username-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 30px 20px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 400px; display: none; }
-    .username-title { font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
-    .username-input { width: 100%; padding: 12px; border: 2px solid #FFD700; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; margin-bottom: 15px; text-align: center; }
+    .username-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 20px 15px; border-radius: 15px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 350px; display: none; }
+    .username-title { font-size: 1.3rem; color: #FFD700; margin-bottom: 12px; }
+    .username-input { width: 100%; padding: 10px; border: 2px solid #FFD700; border-radius: 6px; background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem; margin-bottom: 12px; text-align: center; }
     .username-input::placeholder { color: rgba(255,255,255,0.6); }
-    .username-save-btn { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: #fff; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 40px; cursor: pointer; }
+    .username-save-btn { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: #fff; border: none; padding: 10px 20px; font-size: 0.9rem; border-radius: 25px; cursor: pointer; }
 
     /* ランキング画面 */
-    .ranking-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 600px; display: none; }
-    .ranking-title { font-size: 1.8rem; color: #FFD700; margin-bottom: 20px; }
-    .ranking-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .ranking-tab { background: rgba(255,255,255,0.1); color: white; border: 1px solid #FFD700; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: .9rem; }
+    .ranking-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); max-width: 95%; width: 100%; max-width: 500px; display: none; }
+    .ranking-title { font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
+    .ranking-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+    .ranking-tab { background: rgba(255,255,255,0.1); color: white; border: 1px solid #FFD700; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: .8rem; }
     .ranking-tab.active { background: #FFD700; color: black; }
-    .ranking-list { max-height: 400px; overflow-y: auto; }
-    .ranking-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); margin-bottom: 8px; padding: 12px; border-radius: 8px; }
-    .ranking-rank { font-weight: bold; color: #FFD700; width: 30px; }
-    .ranking-name { flex: 1; text-align: left; margin-left: 10px; }
-    .ranking-score { font-weight: bold; }
-    .ranking-close-btn { margin-top: 15px; background: #666; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; }
+    .ranking-list { max-height: 300px; overflow-y: auto; }
+    .ranking-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); margin-bottom: 6px; padding: 8px; border-radius: 6px; font-size: 0.85rem; }
+    .ranking-rank { font-weight: bold; color: #FFD700; width: 25px; font-size: 0.8rem; }
+    .ranking-name { flex: 1; text-align: left; margin-left: 8px; font-size: 0.8rem; }
+    .ranking-score { font-weight: bold; font-size: 0.8rem; }
+    .ranking-close-btn { margin-top: 12px; background: #666; color: white; border: none; padding: 6px 14px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
 
     /* ステージ選択 */
     .stage-select-screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
@@ -86,19 +86,19 @@
     .review-timer { width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-bottom: 15px; }
     .review-timer-fill { height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500); transition: width .1s linear; }
 
-    .game-ui { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 70%, transparent 100%); padding: 10px; z-index: 200; display: none; flex-direction: column; gap: 8px; }
-    .game-stats { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
-    .stat-item { background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 15px; font-size: .75rem; font-weight: 700; backdrop-filter: blur(10px); white-space: nowrap; }
-    .stage-display { background: rgba(255,215,0,0.3); color: #FFD700; padding: 4px 8px; border-radius: 15px; font-size: .7rem; border: 1px solid #FFD700; }
-    .question-display { text-align: center; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; backdrop-filter: blur(10px); margin: 0 5px; }
-    .question-japanese { font-size: 1.8rem; color: #FFD700; margin-bottom: 6px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 700; }
-    .question-instruction { font-size: .9rem; opacity: .9; margin-bottom: 8px; }
-    .progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; }
+    .game-ui { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 70%, transparent 100%); padding: 8px; z-index: 200; display: none; flex-direction: column; gap: 6px; }
+    .game-stats { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 3px; }
+    .stat-item { background: rgba(0,0,0,0.8); padding: 3px 6px; border-radius: 12px; font-size: .7rem; font-weight: 700; backdrop-filter: blur(10px); white-space: nowrap; margin: 1px; }
+    .stage-display { background: rgba(255,215,0,0.3); color: #FFD700; padding: 3px 6px; border-radius: 12px; font-size: .65rem; border: 1px solid #FFD700; }
+    .question-display { text-align: center; background: rgba(0,0,0,0.9); padding: 10px 8px; border-radius: 10px; backdrop-filter: blur(10px); margin: 0 3px; }
+    .question-japanese { font-size: 1.4rem; color: #FFD700; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-weight: 700; line-height: 1.2; }
+    .question-instruction { font-size: .8rem; opacity: .9; margin-bottom: 6px; }
+    .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; }
     .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); transition: width .3s ease; }
-    .mistakes-indicator { display: flex; gap: 2px; align-items: center; }
-    .mistake-heart { width: 16px; height: 16px; color: #FF6B6B; font-size: .9rem; }
+    .mistakes-indicator { display: flex; gap: 1px; align-items: center; }
+    .mistake-heart { width: 14px; height: 14px; color: #FF6B6B; font-size: .8rem; }
     .mistake-heart.lost { opacity: .3; }
-    .game-canvas { margin-top: 120px; height: calc(100vh - 120px); }
+    .game-canvas { margin-top: 100px; height: calc(100vh - 100px); }
 
     .result-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 30px 20px; border-radius: 20px; backdrop-filter: blur(10px); display: none; max-width: 90%; width: 100%; max-width: 500px; }
     .result-title { font-size: 2rem; margin-bottom: 15px; }
@@ -114,8 +114,71 @@
 
     .error-message { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,0,0,0.9); color: #fff; padding: 8px 16px; border-radius: 5px; font-size: .8rem; z-index: 2000; max-width: 90%; }
 
-    @media (max-width: 768px) { .start-screen, .result-screen, .review-screen { padding: 20px 15px; width: 95%; } .question-japanese { font-size: 1.5rem; } .review-english { font-size: 1.8rem; } .game-stats { justify-content: center; } .stat-item { font-size: .7rem; padding: 3px 6px; } .question-display { padding: 10px 8px; } }
-    @media (max-width: 480px) { .game-ui { padding: 8px; } .game-canvas { margin-top: 110px; height: calc(100vh - 110px); } .question-japanese { font-size: 1.3rem; } .stat-item { font-size: .65rem; } .stage-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { 
+      .start-screen, .result-screen, .review-screen { padding: 15px 10px; width: 95%; } 
+      .question-japanese { font-size: 1.3rem; } 
+      .review-english { font-size: 1.5rem; } 
+      .review-japanese { font-size: 1.1rem; }
+      .game-stats { justify-content: center; flex-wrap: wrap; gap: 3px; } 
+      .stat-item { font-size: .65rem; padding: 2px 5px; margin: 1px; } 
+      .question-display { padding: 8px 6px; margin: 0 3px; } 
+      .stage-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stage-card { padding: 10px; }
+      .stage-select-title { font-size: 1.5rem; }
+      .stage-select-sub { font-size: 0.85rem; }
+      .stage-name { font-size: 0.95rem; }
+      .stage-desc { font-size: 0.75rem; }
+      .stage-meta { font-size: 0.65rem; }
+      .stage-btn { padding: 6px 10px; font-size: 0.8rem; }
+      .account-section { top: 3px; right: 3px; padding: 4px 6px; }
+      .account-info { gap: 4px; font-size: 0.6rem; }
+      .account-info img { width: 16px; height: 16px; }
+      .login-btn, .logout-btn { padding: 3px 6px; font-size: 0.6rem; }
+      .user-stats { font-size: 0.55rem; }
+    }
+    @media (max-width: 480px) { 
+      .game-ui { padding: 6px; } 
+      .game-canvas { margin-top: 100px; height: calc(100vh - 100px); } 
+      .question-japanese { font-size: 1.1rem; } 
+      .stat-item { font-size: .6rem; padding: 2px 4px; } 
+      .stage-grid { grid-template-columns: 1fr; gap: 6px; }
+      .stage-select-card { padding: 15px; }
+      .stage-select-title { font-size: 1.3rem; }
+      h1 { font-size: 1.5rem; }
+      .subtitle { font-size: 0.9rem; }
+      .rules { padding: 10px; font-size: 0.8rem; }
+      .rules h3 { font-size: 0.9rem; }
+      .vocabulary-section { max-height: 200px; padding: 10px; }
+      .word-grid { grid-template-columns: 1fr; gap: 6px; }
+      .word-item { padding: 6px; }
+      .word-english { font-size: 0.85rem; }
+      .word-japanese { font-size: 0.7rem; }
+      .toggle-vocabulary { padding: 6px 12px; font-size: 0.75rem; margin-bottom: 10px; }
+      .start-button, .retry-button { padding: 10px 20px; font-size: 0.95rem; }
+      .review-word-display { padding: 15px 10px; }
+      .review-english { font-size: 1.3rem; }
+      .review-japanese { font-size: 1rem; }
+      .review-progress { font-size: 0.9rem; }
+      .result-title { font-size: 1.5rem; }
+      .result-stats { padding: 10px; font-size: 0.8rem; }
+      .result-message { font-size: 0.9rem; }
+      .ranking-tabs { gap: 3px; }
+      .ranking-tab { padding: 4px 8px; font-size: 0.7rem; }
+      .ranking-item { padding: 6px; font-size: 0.75rem; }
+      .ranking-rank { width: 20px; font-size: 0.7rem; }
+      .ranking-name { font-size: 0.7rem; margin-left: 6px; }
+      .ranking-score { font-size: 0.7rem; }
+    }
+    @media (max-width: 360px) {
+      .game-canvas { margin-top: 90px; height: calc(100vh - 90px); }
+      .question-japanese { font-size: 1rem; }
+      .stat-item { font-size: .55rem; padding: 1px 3px; }
+      .stage-select-title { font-size: 1.1rem; }
+      h1 { font-size: 1.3rem; }
+      .account-section { padding: 3px 5px; }
+      .account-info { font-size: 0.55rem; }
+      .login-btn, .logout-btn { padding: 2px 4px; font-size: 0.55rem; }
+    }
   </style>
 </head>
 <body>
@@ -352,6 +415,9 @@
 
         await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), userData);
         
+        // 新規ユーザーの進行状況を設定
+        window.currentUserUnlockedStage = 1;
+        
         document.getElementById('usernameScreen').style.display = 'none';
         document.getElementById('stageSelectScreen').style.display = 'flex';
         updateAccountUI();
@@ -457,20 +523,19 @@
         const userData = await getUserData();
         
         if (userData) {
-          // クラウドデータがローカルより新しい場合は上書き
-          const cloudStages = userData.unlockedStages || 1;
-          const localStages = getUnlockedStage();
-          
-          if (cloudStages > localStages) {
-            setUnlockedStage(cloudStages);
-            buildStageSelect();
-            console.log('クラウドデータを同期しました');
-          }
-
+          // 現在のユーザーのクラウドデータを設定
+          window.currentUserUnlockedStage = userData.unlockedStages || 1;
           totalPlayTime = userData.totalPlayTime || 0;
+          
+          console.log('クラウドデータを読み込みました - ステージ:', window.currentUserUnlockedStage);
+          buildStageSelect(); // ステージ選択画面を更新
+        } else {
+          // 新規ユーザーの場合
+          window.currentUserUnlockedStage = 1;
         }
       } catch (error) {
         console.error('データ読み込みエラー:', error);
+        window.currentUserUnlockedStage = 1;
       }
     }
 
@@ -659,12 +724,41 @@
 
     /*********************** 進行状況 ************************/
     function getUnlockedStage() {
+      // ログインしている場合はFirebaseデータを使用、未ログインはローカルストレージ
+      if (currentUser && isFirebaseReady) {
+        return getCurrentUserUnlockedStage();
+      }
       const n = parseInt(localStorage.getItem(STORAGE_KEY_UNLOCK) || '1', 10);
       return Math.min(Math.max(n, 1), 6);
     }
+    
+    function getCurrentUserUnlockedStage() {
+      // currentUserのデータから取得（非同期だが、loadUserData()で事前に設定済み）
+      return window.currentUserUnlockedStage || 1;
+    }
+    
     function setUnlockedStage(n) {
-      const current = getUnlockedStage();
-      if (n > current) localStorage.setItem(STORAGE_KEY_UNLOCK, String(n));
+      if (currentUser && isFirebaseReady) {
+        // Firebase用
+        window.currentUserUnlockedStage = Math.min(Math.max(n, 1), 6);
+        updateUserDataInFirebase();
+      } else {
+        // ローカルストレージ用
+        const current = parseInt(localStorage.getItem(STORAGE_KEY_UNLOCK) || '1', 10);
+        if (n > current) localStorage.setItem(STORAGE_KEY_UNLOCK, String(n));
+      }
+    }
+
+    async function updateUserDataInFirebase() {
+      if (!isFirebaseReady || !currentUser) return;
+      
+      try {
+        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), {
+          unlockedStages: window.currentUserUnlockedStage
+        }, { merge: true });
+      } catch (error) {
+        console.error('Firebase更新エラー:', error);
+      }
     }
 
     /*********************** 音声 ************************/
@@ -755,8 +849,8 @@
         for (let i=0;i<3;i++){
           for (let j=0;j<3;j++){
             const x=(i-1)*3, z=(j-1)*3;
-            const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.6,0.5,16), new THREE.MeshLambertMaterial({ color: 0x000000 }));
-            hole.position.set(x,-0.25,z); hole.receiveShadow = true; gameState.scene.add(hole); gameState.holes.push(hole);
+            const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.6,0.5,8), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+            hole.position.set(x,-0.25,z); gameState.scene.add(hole); gameState.holes.push(hole);
             const moleGroup = new THREE.Group();
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16), new THREE.MeshLambertMaterial({ color: 0x8B4513 })); body.castShadow = true; moleGroup.add(body);
             const eyeGeo = new THREE.SphereGeometry(0.1,8,8); const eyeMat = new THREE.MeshLambertMaterial({ color: 0x000000 });
