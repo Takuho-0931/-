@@ -369,7 +369,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+    import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs, where, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
     // Firebase設定（Frenzyプロジェクトの設定）
     const firebaseConfig = {
@@ -403,6 +403,8 @@
     window.orderBy = orderBy;
     window.limit = limit;
     window.getDocs = getDocs;
+    window.where = where;
+    window.deleteDoc = deleteDoc;
   </script>
   
   <script>
@@ -827,7 +829,7 @@
     }
 
     function confirmDeleteAccount() {
-      if (confirm('本当にアカウントを削除しますか？\n\n削除すると、すべてのデータが失われ、復元できません。')) {
+      if (confirm('⚠️ アカウント完全削除の確認\n\n削除される内容：\n• ユーザーアカウント情報\n• 全ステージの進行状況\n• すべてのスコア記録\n• ランキングからの削除\n• 統計情報\n\n削除すると復元は一切できません。\n本当に削除しますか？')) {
         deleteUserAccount();
       }
     }
@@ -836,23 +838,50 @@
       if (!isFirebaseReady || !currentUser) return;
 
       try {
-        // ユーザーデータを削除
-        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), {
-          deleted: true,
-          deletedAt: new Date().toISOString()
-        }, { merge: true });
-
-        // ローカルストレージもクリア
+        showSuccess('削除処理を開始しています...');
+        
+        // 1. ユーザーのスコア記録をすべて削除
+        const scoresQuery = window.query(
+          window.collection(window.firebaseDb, 'scores'),
+          window.where('userId', '==', currentUser.uid)
+        );
+        const scoresSnapshot = await window.getDocs(scoresQuery);
+        
+        const deletePromises = [];
+        let deletedScores = 0;
+        
+        scoresSnapshot.forEach(doc => {
+          deletePromises.push(window.deleteDoc(doc.ref));
+          deletedScores++;
+        });
+        
+        // 2. ユーザーデータを削除
+        deletePromises.push(
+          window.deleteDoc(window.doc(window.firebaseDb, 'users', currentUser.uid))
+        );
+        
+        // すべての削除処理を実行
+        await Promise.all(deletePromises);
+        
+        // 3. ローカルストレージもクリア
         localStorage.removeItem(STORAGE_KEY_UNLOCK);
         
-        // ログアウト
+        // 4. ログアウト
         await window.signOut(window.firebaseAuth);
         
         closeSettings();
-        showSuccess('アカウントを削除しました');
+        showSuccess(`アカウントを完全に削除しました\n（${deletedScores}件のスコア記録も削除）`);
+        
+        console.log(`アカウント削除完了 - ユーザーデータと${deletedScores}件のスコア記録を削除`);
       } catch (error) {
         console.error('アカウント削除エラー:', error);
-        showError('アカウント削除に失敗しました');
+        if (error.code === 'permission-denied') {
+          showError('削除権限がありません。ログインし直してください。');
+        } else if (error.code === 'unavailable') {
+          showError('ネットワークエラーです。接続を確認してください。');
+        } else {
+          showError('アカウント削除に失敗しました: ' + error.message);
+        }
       }
     }
 
