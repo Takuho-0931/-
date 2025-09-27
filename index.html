@@ -6,9 +6,9 @@
   <title>3D English Learning Whack-a-Mole!（3D英語学習モグラたたき）</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; overflow: hidden; touch-action: manipulation; }
+    body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; overflow: hidden; touch-action: manipulation; user-select: none; }
     #gameContainer { position: relative; width: 100vw; height: 100vh; }
-    #threeCanvas { display: block; }
+    #threeCanvas { display: block; touch-action: none; }
     .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
     .ui-overlay > * { pointer-events: auto; }
 
@@ -1040,7 +1040,12 @@
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); directionalLight.position.set(10,10,5); directionalLight.castShadow = true; directionalLight.shadow.mapSize.width = 2048; directionalLight.shadow.mapSize.height = 2048; gameState.scene.add(directionalLight);
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.MeshLambertMaterial({ color: 0x3d8b37 })); ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; gameState.scene.add(ground);
         createHolesAndMoles();
-        canvas.addEventListener('click', onMouseClick); canvas.addEventListener('touchstart', onTouchStart); canvas.addEventListener('mousemove', onMouseMove); window.addEventListener('resize', onWindowResize);
+        canvas.addEventListener('click', onMouseClick); 
+        canvas.addEventListener('touchstart', onTouchStart); 
+        canvas.addEventListener('mousemove', onMouseMove); 
+        canvas.addEventListener('wheel', onMouseWheel, { passive: false });
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        window.addEventListener('resize', onWindowResize);
         animate();
       } catch (e) { showError('3Dシーンの初期化に失敗しました: '+e.message); }
     }
@@ -1318,7 +1323,16 @@
       } catch(e){ console.error('フィードバック表示エラー:', e); }
     }
     function updateMistakesDisplay(){ try { for (let i=1;i<=3;i++){ const h=document.getElementById(`heart${i}`); if (!h) continue; if (i <= gameState.mistakes) h.classList.add('lost'); else if (i <= stageConfig.hearts) h.classList.remove('lost'); } } catch(e){ showError('間違い表示の更新に失敗しました: '+e.message); } }
-    function onMouseMove(e){ try { if (e.buttons===1){ const dx = e.movementX*0.01, dy = e.movementY*0.01; gameState.camera.position.x += dx; gameState.camera.position.y -= dy; gameState.camera.lookAt(0,-1,0); } } catch(e2){ console.error('マウス移動エラー:', e2); } }
+    function onMouseMove(e){ 
+      // ゲーム中は視点変更を無効化
+      return;
+    }
+    function onMouseWheel(e) {
+      // ゲーム中のズーム操作を無効化
+      e.preventDefault();
+      return false;
+    }
+
     function onWindowResize(){ try { if (gameState.camera && gameState.renderer) updateCanvasSize(); } catch(e){ console.error('リサイズエラー:', e); } }
 
     function animate(){ try { requestAnimationFrame(animate); if (gameState.moles && gameState.moles.length>0){ gameState.moles.forEach(m => { if (m && m.userData){ const ty = m.userData.isActive ? m.userData.targetY : m.userData.hiddenY; const cy = m.position.y; const sp = 0.15; if (Math.abs(cy-ty)>0.01) m.position.y += (ty-cy)*sp; const tm = m.getObjectByName('textMesh'); if (tm && gameState.camera) tm.lookAt(gameState.camera.position); } }); } if (gameState.renderer && gameState.scene && gameState.camera){ gameState.renderer.render(gameState.scene, gameState.camera); } } catch(e){ console.error('アニメーションループエラー:', e); } }
