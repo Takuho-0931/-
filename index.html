@@ -20,6 +20,26 @@
     .logout-btn { background: #db4437; }
     .user-stats { font-size: .7rem; opacity: .8; margin-top: 4px; }
 
+    /* ユーザー名設定画面 */
+    .username-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 30px 20px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 400px; display: none; }
+    .username-title { font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
+    .username-input { width: 100%; padding: 12px; border: 2px solid #FFD700; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; font-size: 1rem; margin-bottom: 15px; text-align: center; }
+    .username-input::placeholder { color: rgba(255,255,255,0.6); }
+    .username-save-btn { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: #fff; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 40px; cursor: pointer; }
+
+    /* ランキング画面 */
+    .ranking-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 600px; display: none; }
+    .ranking-title { font-size: 1.8rem; color: #FFD700; margin-bottom: 20px; }
+    .ranking-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .ranking-tab { background: rgba(255,255,255,0.1); color: white; border: 1px solid #FFD700; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: .9rem; }
+    .ranking-tab.active { background: #FFD700; color: black; }
+    .ranking-list { max-height: 400px; overflow-y: auto; }
+    .ranking-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); margin-bottom: 8px; padding: 12px; border-radius: 8px; }
+    .ranking-rank { font-weight: bold; color: #FFD700; width: 30px; }
+    .ranking-name { flex: 1; text-align: left; margin-left: 10px; }
+    .ranking-score { font-weight: bold; }
+    .ranking-close-btn { margin-top: 15px; background: #666; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; }
+
     /* ステージ選択 */
     .stage-select-screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
     .stage-select-card { width: min(720px, 92vw); background: rgba(0,0,0,0.9); border-radius: 18px; padding: 24px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
@@ -110,11 +130,36 @@
         </div>
       </div>
       
+      <!-- ユーザー名設定画面 -->
+      <div class="username-screen" id="usernameScreen">
+        <div class="username-title">ユーザー名を設定してください</div>
+        <input type="text" class="username-input" id="usernameInput" placeholder="ユーザー名を入力" maxlength="20">
+        <button class="username-save-btn" onclick="saveUsername()">保存してゲーム開始</button>
+      </div>
+
+      <!-- ランキング画面 -->
+      <div class="ranking-screen" id="rankingScreen">
+        <div class="ranking-title">🏆 ランキング</div>
+        <div class="ranking-tabs">
+          <button class="ranking-tab active" onclick="showRanking('totalScore')">総合スコア</button>
+          <button class="ranking-tab" onclick="showRanking('stage6')">最高ステージ</button>
+          <button class="ranking-tab" onclick="showRanking('playTime')">プレー時間</button>
+        </div>
+        <div class="ranking-list" id="rankingList">
+          読み込み中...
+        </div>
+        <button class="ranking-close-btn" onclick="closeRanking()">閉じる</button>
+      </div>
+      
       <!-- ステージ選択 -->
       <div class="stage-select-screen" id="stageSelectScreen">
         <div class="stage-select-card">
           <div class="stage-select-title">🎯 ステージを選択</div>
           <div class="stage-select-sub">クリアしたステージのみ次へ進めます（自動保存）</div>
+          <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+            <button class="toggle-vocabulary" onclick="showRanking('totalScore')">🏆 ランキング</button>
+            <button class="toggle-vocabulary" onclick="showStats()">📊 統計情報</button>
+          </div>
           <div class="stage-grid" id="stageGrid"></div>
           <div class="reset-progress" id="resetProgress">進行状況をリセットする</div>
         </div>
@@ -247,6 +292,8 @@
     /*********************** Firebase認証・データ管理 ************************/
     let currentUser = null;
     let isFirebaseReady = false;
+    let gameStartTime = null;
+    let totalPlayTime = 0;
 
     function initFirebase() {
       if (typeof window.firebaseAuth === 'undefined') {
@@ -262,13 +309,58 @@
         updateAccountUI();
         
         if (user) {
-          // ログイン時にクラウドデータを読み込み
-          await loadUserData();
+          // ログイン時にユーザーデータを確認
+          const userData = await getUserData();
+          if (!userData || !userData.username) {
+            showUsernameScreen();
+          } else {
+            await loadUserData();
+          }
         } else {
-          // ログアウト時はローカルデータのみ
           console.log('ログアウトしました');
         }
       });
+    }
+
+    function showUsernameScreen() {
+      document.getElementById('stageSelectScreen').style.display = 'none';
+      document.getElementById('usernameScreen').style.display = 'block';
+    }
+
+    async function saveUsername() {
+      const username = document.getElementById('usernameInput').value.trim();
+      if (!username || username.length < 2) {
+        showError('ユーザー名は2文字以上で入力してください');
+        return;
+      }
+
+      if (!isFirebaseReady || !currentUser) return;
+
+      try {
+        const userData = {
+          username: username,
+          displayName: username,
+          email: currentUser.email,
+          photoURL: currentUser.photoURL,
+          createdAt: new Date().toISOString(),
+          unlockedStages: 1,
+          totalPlayTime: 0,
+          totalGames: 0,
+          bestScores: {},
+          achievements: []
+        };
+
+        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), userData);
+        
+        document.getElementById('usernameScreen').style.display = 'none';
+        document.getElementById('stageSelectScreen').style.display = 'flex';
+        updateAccountUI();
+        buildStageSelect();
+        console.log('ユーザー名を保存しました:', username);
+      } catch (error) {
+        console.error('ユーザー名保存エラー:', error);
+        showError('ユーザー名の保存に失敗しました');
+      }
     }
 
     function updateAccountUI() {
@@ -276,15 +368,18 @@
       if (!accountInfo) return;
       
       if (currentUser) {
-        accountInfo.innerHTML = `
-          <img src="${currentUser.photoURL || ''}" alt="Profile" style="width:24px;height:24px;border-radius:50%;">
-          <div>
-            <div style="font-size:.8rem;">${currentUser.displayName || 'ユーザー'}</div>
-            <div class="user-stats" id="userStats">読み込み中...</div>
-          </div>
-          <button class="logout-btn" onclick="logoutUser()">ログアウト</button>
-        `;
-        updateUserStats();
+        getUserData().then(userData => {
+          const displayName = userData?.username || currentUser.displayName || 'ユーザー';
+          accountInfo.innerHTML = `
+            <img src="${currentUser.photoURL || ''}" alt="Profile" style="width:24px;height:24px;border-radius:50%;">
+            <div>
+              <div style="font-size:.8rem;">${displayName}</div>
+              <div class="user-stats" id="userStats">読み込み中...</div>
+            </div>
+            <button class="logout-btn" onclick="logoutUser()">ログアウト</button>
+          `;
+          updateUserStats();
+        });
       } else {
         accountInfo.innerHTML = `
           <button class="login-btn" onclick="loginWithGoogle()">Googleでログイン</button>
@@ -316,17 +411,39 @@
       }
     }
 
+    async function getUserData() {
+      if (!isFirebaseReady || !currentUser) return null;
+      
+      try {
+        const docRef = window.doc(window.firebaseDb, 'users', currentUser.uid);
+        const docSnap = await window.getDoc(docRef);
+        return docSnap.exists() ? docSnap.data() : null;
+      } catch (error) {
+        console.error('ユーザーデータ取得エラー:', error);
+        return null;
+      }
+    }
+
     async function saveUserData() {
       if (!isFirebaseReady || !currentUser) return;
       
       try {
-        const userData = {
+        const userData = await getUserData() || {};
+        
+        // プレー時間を更新
+        if (gameStartTime) {
+          const sessionTime = Math.floor((Date.now() - gameStartTime) / 1000);
+          totalPlayTime = (userData.totalPlayTime || 0) + sessionTime;
+        }
+
+        const updateData = {
           unlockedStages: getUnlockedStage(),
           lastUpdated: new Date().toISOString(),
-          totalGamesPlayed: parseInt(localStorage.getItem('total_games') || '0') + 1
+          totalGames: (userData.totalGames || 0) + 1,
+          totalPlayTime: totalPlayTime
         };
         
-        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), userData, { merge: true });
+        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), updateData, { merge: true });
         console.log('データを保存しました');
       } catch (error) {
         console.error('データ保存エラー:', error);
@@ -337,13 +454,11 @@
       if (!isFirebaseReady || !currentUser) return;
       
       try {
-        const docRef = window.doc(window.firebaseDb, 'users', currentUser.uid);
-        const docSnap = await window.getDoc(docRef);
+        const userData = await getUserData();
         
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        if (userData) {
           // クラウドデータがローカルより新しい場合は上書き
-          const cloudStages = data.unlockedStages || 1;
+          const cloudStages = userData.unlockedStages || 1;
           const localStages = getUnlockedStage();
           
           if (cloudStages > localStages) {
@@ -351,6 +466,8 @@
             buildStageSelect();
             console.log('クラウドデータを同期しました');
           }
+
+          totalPlayTime = userData.totalPlayTime || 0;
         }
       } catch (error) {
         console.error('データ読み込みエラー:', error);
@@ -361,31 +478,167 @@
       if (!isFirebaseReady || !currentUser) return;
       
       try {
+        const userData = await getUserData();
+        const username = userData?.username || currentUser.displayName || 'プレイヤー';
+
+        // スコア記録を保存
         const scoreData = {
           userId: currentUser.uid,
-          userName: currentUser.displayName,
+          username: username,
           stageId: stageId,
           score: score,
           isCleared: isCleared,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          playTime: gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0
         };
         
         const scoresRef = window.collection(window.firebaseDb, 'scores');
         await window.setDoc(window.doc(scoresRef), scoreData);
+
+        // ユーザーのベストスコアを更新
+        const bestScores = userData?.bestScores || {};
+        if (!bestScores[`stage${stageId}`] || score > bestScores[`stage${stageId}`]) {
+          bestScores[`stage${stageId}`] = score;
+          await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), { bestScores }, { merge: true });
+        }
+
         console.log('スコアを保存しました');
       } catch (error) {
         console.error('スコア保存エラー:', error);
       }
     }
 
+    async function showRanking(type) {
+      if (!isFirebaseReady) {
+        showError('ログインが必要です');
+        return;
+      }
+
+      document.getElementById('stageSelectScreen').style.display = 'none';
+      document.getElementById('rankingScreen').style.display = 'block';
+
+      // タブの更新
+      document.querySelectorAll('.ranking-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const rankingList = document.getElementById('rankingList');
+      rankingList.innerHTML = '読み込み中...';
+
+      try {
+        let rankings = [];
+
+        if (type === 'totalScore') {
+          // 総合スコアランキング
+          const scoresQuery = window.query(
+            window.collection(window.firebaseDb, 'scores'),
+            window.orderBy('score', 'desc'),
+            window.limit(50)
+          );
+          const snapshot = await window.getDocs(scoresQuery);
+          const userScores = {};
+          
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (!userScores[data.userId] || data.score > userScores[data.userId].score) {
+              userScores[data.userId] = data;
+            }
+          });
+          
+          rankings = Object.values(userScores).sort((a, b) => b.score - a.score).slice(0, 20);
+        } else if (type === 'playTime') {
+          // プレー時間ランキング
+          const usersQuery = window.query(
+            window.collection(window.firebaseDb, 'users'),
+            window.orderBy('totalPlayTime', 'desc'),
+            window.limit(20)
+          );
+          const snapshot = await window.getDocs(usersQuery);
+          rankings = snapshot.docs.map(doc => ({ ...doc.data(), userId: doc.id }));
+        }
+
+        displayRankings(rankings, type);
+      } catch (error) {
+        console.error('ランキング取得エラー:', error);
+        rankingList.innerHTML = 'ランキングの読み込みに失敗しました';
+      }
+    }
+
+    function displayRankings(rankings, type) {
+      const rankingList = document.getElementById('rankingList');
+      
+      if (rankings.length === 0) {
+        rankingList.innerHTML = 'データがありません';
+        return;
+      }
+
+      let html = '';
+      rankings.forEach((item, index) => {
+        const rank = index + 1;
+        const name = item.username || 'プレイヤー';
+        let value = '';
+
+        if (type === 'totalScore') {
+          value = `${item.score}pt`;
+        } else if (type === 'playTime') {
+          const hours = Math.floor((item.totalPlayTime || 0) / 3600);
+          const minutes = Math.floor(((item.totalPlayTime || 0) % 3600) / 60);
+          value = `${hours}h ${minutes}m`;
+        }
+
+        const isCurrentUser = currentUser && item.userId === currentUser.uid;
+        const highlightClass = isCurrentUser ? 'style="background: rgba(255,215,0,0.2);"' : '';
+
+        html += `
+          <div class="ranking-item" ${highlightClass}>
+            <div class="ranking-rank">${rank}</div>
+            <div class="ranking-name">${name}${isCurrentUser ? ' (あなた)' : ''}</div>
+            <div class="ranking-score">${value}</div>
+          </div>
+        `;
+      });
+
+      rankingList.innerHTML = html;
+    }
+
+    function closeRanking() {
+      document.getElementById('rankingScreen').style.display = 'none';
+      document.getElementById('stageSelectScreen').style.display = 'flex';
+    }
+
+    function showStats() {
+      if (!currentUser) {
+        showError('ログインしてください');
+        return;
+      }
+      
+      getUserData().then(userData => {
+        if (!userData) return;
+        
+        const hours = Math.floor((userData.totalPlayTime || 0) / 3600);
+        const minutes = Math.floor(((userData.totalPlayTime || 0) % 3600) / 60);
+        const totalGames = userData.totalGames || 0;
+        const unlockedStages = userData.unlockedStages || 1;
+        
+        alert(`📊 あなたの統計情報\n\n🎮 総プレー時間: ${hours}時間${minutes}分\n🎯 総ゲーム数: ${totalGames}回\n🚀 到達ステージ: ${unlockedStages}/6\n📅 登録日: ${new Date(userData.createdAt).toLocaleDateString()}`);
+      });
+    }
+
     function updateUserStats() {
       if (!currentUser) return;
       
-      const statsEl = document.getElementById('userStats');
-      if (statsEl) {
-        const unlockedStages = getUnlockedStage();
-        statsEl.textContent = `ステージ進行: ${unlockedStages}/6`;
-      }
+      getUserData().then(userData => {
+        const statsEl = document.getElementById('userStats');
+        if (statsEl && userData) {
+          const unlockedStages = userData.unlockedStages || 1;
+          const hours = Math.floor((userData.totalPlayTime || 0) / 3600);
+          statsEl.textContent = `ステージ ${unlockedStages}/6 | ${hours}h プレー`;
+        }
+      });
+    }
+
+    // ゲーム開始時間の記録
+    function startGameTimer() {
+      gameStartTime = Date.now();
     }
 
     /*********************** 状態 ************************/
@@ -619,8 +872,224 @@
     }
     function actualStartGame(){
       try {
+        startGameTimer(); // ゲーム開始時間を記録
         gameState.currentQuestion = 0; gameState.correctAnswers = 0; gameState.mistakes = 0;
         gameState.level = 1; gameState.score = 0; gameState.stage = selectedStageId; gameState.isPlaying = true;
+        gameState.usedWords = []; gameState.spawnInterval = 1000; gameState.activeMoles = [];
+        for (let i=1;i<=3;i++){ const h = document.getElementById(`heart${i}`); if (h) h.classList.remove('lost'); }
+        const maxMist = document.getElementById('maxMistakesLabel'); if (maxMist) maxMist.textContent = stageConfig.hearts;
+        if (stageConfig.hearts < 3){ for (let i=stageConfig.hearts+1;i<=3;i++){ const h=document.getElementById(`heart${i}`); if (h) h.classList.add('lost'); } }
+        const tgt = document.getElementById('targetScoreDisplay'); if (tgt) tgt.textContent = stageConfig.targetScore;
+        gameState.moles.forEach(m => { if (m && m.userData){ m.userData.isActive=false; clearMoleText(m); }});
+        updateMistakesDisplay(); generateQuestion();
+      } catch(e){ showError('実際のゲーム開始に失敗しました: '+e.message); }
+    }
+
+    /*********************** 出題 ************************/
+    function choosePromptTypeForQuestion(){
+      if (stageConfig.promptType === 'MIX'){
+        gameState.currentPromptType = Math.random() < 0.5 ? 'JPtoEN' : 'ENtoJP';
+      } else {
+        gameState.currentPromptType = stageConfig.promptType;
+      }
+      return gameState.currentPromptType;
+    }
+    function updateQuestionDisplay(correctWord){
+      try {
+        const qEl = document.getElementById('questionJapanese');
+        const qCount = document.getElementById('questionCount');
+        const levelEl = document.getElementById('levelDisplay');
+        const scoreEl = document.getElementById('scoreDisplay');
+        const stageEl = document.getElementById('stageDisplay');
+        const instruction = document.getElementById('questionInstruction');
+        const mode = gameState.currentPromptType;
+        if (mode === 'JPtoEN'){ qEl.textContent = correctWord.japanese; instruction.textContent = '英語で何と言う？'; }
+        else { qEl.textContent = correctWord.english; instruction.textContent = '日本語で何と言う？'; }
+        if (qCount) qCount.textContent = gameState.currentQuestion + 1;
+        if (levelEl) levelEl.textContent = gameState.level;
+        if (scoreEl) scoreEl.textContent = gameState.score;
+        if (stageEl) stageEl.textContent = gameState.stage;
+      } catch(e){ showError('問題表示更新に失敗しました: '+e.message); }
+    }
+    function generateQuestion(){
+      try {
+        if (gameState.currentQuestion >= 10){ finishStageByScore(); return; }
+        let available = wordDatabase.filter(w => !gameState.usedWords.includes(w));
+        if (available.length === 0){ gameState.usedWords = []; available = wordDatabase.slice(); }
+        const correctWord = available[Math.floor(Math.random()*available.length)];
+        gameState.usedWords.push(correctWord); gameState.currentWord = correctWord;
+        const incorrect = wordDatabase.filter(w => w !== correctWord).sort(()=>Math.random()-0.5);
+        gameState.currentOptions = [correctWord, correctWord, correctWord, incorrect[0], incorrect[1], incorrect[2]];
+        choosePromptTypeForQuestion();
+        updateQuestionDisplay(correctWord);
+        startProgressBar();
+        startContinuousMoleSpawning();
+        if (gameState.questionTimer) clearTimeout(gameState.questionTimer);
+        gameState.questionTimer = setTimeout(()=>{ nextQuestion(); }, stageConfig.timeSec * 1000);
+        gameState.questionStartTime = Date.now();
+      } catch(e){ showError('問題生成に失敗しました: '+e.message); }
+    }
+    function startProgressBar(){
+      try {
+        const fill = document.getElementById('progressFill'); if(!fill) return; fill.style.width = '100%';
+        let progress = 100; if (gameState.progressTimer) clearInterval(gameState.progressTimer);
+        const step = 100 / (stageConfig.timeSec * 10); // 0.1s刻み
+        gameState.progressTimer = setInterval(()=>{ progress -= step; fill.style.width = Math.max(0, progress) + '%'; if (progress <= 0){ clearInterval(gameState.progressTimer); } }, 100);
+      } catch(e){ showError('プログレスバーの開始に失敗しました: '+e.message); }
+    }
+    function startContinuousMoleSpawning(){
+      try { if (gameState.moleSpawnTimer) clearTimeout(gameState.moleSpawnTimer); spawnSingleMole(); } catch(e){ showError('連続モグラ出現の開始に失敗しました: '+e.message); }
+    }
+    function spawnSingleMole(){
+      try {
+        if (!gameState.isPlaying) return;
+        const randomWord = gameState.currentOptions[Math.floor(Math.random()*gameState.currentOptions.length)];
+        const availableHoles = []; for (let i=0;i<9;i++){ if (!gameState.activeMoles.includes(i)) availableHoles.push(i); }
+        if (availableHoles.length > 0){
+          const holeIndex = availableHoles[Math.floor(Math.random()*availableHoles.length)];
+          const mole = gameState.moles[holeIndex]; setMoleText(mole, randomWord); mole.userData.isActive = true; gameState.activeMoles.push(holeIndex);
+          const visibleTime = clamp(1500 - (selectedStageId-1)*150 + Math.random()*600, 700, 2200);
+          setTimeout(()=>{ if (mole.userData && mole.userData.isActive){ mole.userData.isActive = false; gameState.activeMoles = gameState.activeMoles.filter(i=>i!==holeIndex); clearMoleText(mole); } }, visibleTime);
+        }
+        const nextSpawnTime = clamp(600 - (selectedStageId-1)*60 + Math.random()*400, 200, 900);
+        if (gameState.isPlaying) gameState.moleSpawnTimer = setTimeout(spawnSingleMole, nextSpawnTime);
+      } catch(e){ showError('モグラ出現に失敗しました: '+e.message); }
+    }
+    function setMoleText(mole, wordObj){
+      try {
+        clearMoleText(mole);
+        if (gameState.currentPromptType === 'JPtoEN'){ mole.userData.word = wordObj.english; mole.userData.isCorrect = (wordObj === gameState.currentWord); }
+        else { mole.userData.word = wordObj.japanese; mole.userData.isCorrect = (wordObj === gameState.currentWord); }
+        const tex = createTextTexture(mole.userData.word); if (tex){ const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3,1.5), new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: .1 })); mesh.position.set(0,1.2,0); mesh.lookAt(gameState.camera.position); mesh.name='textMesh'; mole.add(mesh); }
+      } catch(e){ showError('モグラテキスト設定に失敗しました: '+e.message); }
+    }
+    function clearMoleText(mole){ try { const t = mole.getObjectByName('textMesh'); if (t) mole.remove(t); mole.userData.word = ""; mole.userData.isCorrect = false; } catch(e){ console.error('モグラテキストクリアエラー:', e); } }
+    function nextQuestion(){
+      try {
+        if (gameState.progressTimer) clearInterval(gameState.progressTimer);
+        if (gameState.moleSpawnTimer) clearTimeout(gameState.moleSpawnTimer);
+        gameState.moles.forEach(m => { if (m && m.userData){ m.userData.isActive=false; clearMoleText(m); }});
+        gameState.activeMoles = [];
+        gameState.currentQuestion++; gameState.level = Math.floor(gameState.currentQuestion/2) + 1;
+        if (gameState.currentQuestion >= 10){ finishStageByScore(); return; }
+        setTimeout(()=>{ if (gameState.isPlaying) generateQuestion(); }, 400);
+      } catch(e){ showError('次の問題への移行に失敗しました: '+e.message); }
+    }
+
+    /*********************** 入力 ************************/
+    function onMouseClick(event){
+      try {
+        if (!gameState.isPlaying || !gameState.raycaster || !gameState.mouse) return;
+        const rect = gameState.renderer.domElement.getBoundingClientRect();
+        gameState.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        gameState.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        gameState.raycaster.setFromCamera(gameState.mouse, gameState.camera);
+        const hits = gameState.raycaster.intersectObjects(gameState.scene.children, true);
+        if (hits.length > 0){
+          for (let h of hits){ const mole = h.object.parent; if (mole && mole.userData && mole.userData.isActive && mole.userData.word){ hitMole(mole.userData.index); break; } }
+        }
+      } catch(e){ showError('クリック処理に失敗しました: '+e.message); }
+    }
+    function onTouchStart(e){
+      try { e.preventDefault(); if (gameState.audioContext && gameState.audioContext.state === 'suspended') gameState.audioContext.resume(); if (e.touches.length>0){ const t=e.touches[0]; onMouseClick({ clientX:t.clientX, clientY:t.clientY }); } } catch(e2){ showError('タッチ処理に失敗しました: '+e2.message); }
+    }
+    function hitMole(index){
+      try {
+        const mole = gameState.moles[index]; if (!mole || !mole.userData || !mole.userData.isActive) return;
+        mole.userData.isActive = false; gameState.activeMoles = gameState.activeMoles.filter(i=>i!==index);
+        if (mole.userData.isCorrect){
+          gameState.correctAnswers++; const base=10, levelBonus=gameState.level*5; const pts = base+levelBonus; gameState.score += pts;
+          const sEl=document.getElementById('scoreDisplay'); if(sEl) sEl.textContent = gameState.score;
+          playSound('correct'); showFeedback(mole.position, `+${pts}`, 'correct');
+        } else {
+          gameState.mistakes++; const penalty=5; gameState.score = Math.max(0, gameState.score - penalty);
+          const sEl=document.getElementById('scoreDisplay'); if(sEl) sEl.textContent = gameState.score;
+          playSound('wrong'); updateMistakesDisplay(); showFeedback(mole.position, `-${penalty}`, 'wrong');
+          if (gameState.mistakes >= stageConfig.hearts){ endGame(false); return; }
+        }
+      } catch(e){ showError('モグラヒット処理に失敗しました: '+e.message); }
+    }
+    function showFeedback(pos, text, type){
+      try {
+        const v = pos.clone().project(gameState.camera); const x = (v.x*0.5+0.5)*window.innerWidth; const y = (v.y*-0.5+0.5)*window.innerHeight + 120;
+        const el = document.createElement('div'); el.className = `feedback-effect feedback-${type}`; el.textContent = text; el.style.left = x+'px'; el.style.top = y+'px'; el.style.animation = 'feedbackAnimation 1.5s ease-out forwards'; document.body.appendChild(el); setTimeout(()=>{ if(document.body.contains(el)) document.body.removeChild(el); }, 1500);
+      } catch(e){ console.error('フィードバック表示エラー:', e); }
+    }
+    function updateMistakesDisplay(){ try { for (let i=1;i<=3;i++){ const h=document.getElementById(`heart${i}`); if (!h) continue; if (i <= gameState.mistakes) h.classList.add('lost'); else if (i <= stageConfig.hearts) h.classList.remove('lost'); } } catch(e){ showError('間違い表示の更新に失敗しました: '+e.message); } }
+    function onMouseMove(e){ try { if (e.buttons===1){ const dx = e.movementX*0.01, dy = e.movementY*0.01; gameState.camera.position.x += dx; gameState.camera.position.y -= dy; gameState.camera.lookAt(0,-1,0); } } catch(e2){ console.error('マウス移動エラー:', e2); } }
+    function onWindowResize(){ try { if (gameState.camera && gameState.renderer) updateCanvasSize(); } catch(e){ console.error('リサイズエラー:', e); } }
+
+    function animate(){ try { requestAnimationFrame(animate); if (gameState.moles && gameState.moles.length>0){ gameState.moles.forEach(m => { if (m && m.userData){ const ty = m.userData.isActive ? m.userData.targetY : m.userData.hiddenY; const cy = m.position.y; const sp = 0.15; if (Math.abs(cy-ty)>0.01) m.position.y += (ty-cy)*sp; const tm = m.getObjectByName('textMesh'); if (tm && gameState.camera) tm.lookAt(gameState.camera.position); } }); } if (gameState.renderer && gameState.scene && gameState.camera){ gameState.renderer.render(gameState.scene, gameState.camera); } } catch(e){ console.error('アニメーションループエラー:', e); } }
+
+    /*********************** スコア判定・終了 ************************/
+    function finishStageByScore(){
+      try {
+        document.getElementById('targetScoreLabel').textContent = stageConfig.targetScore;
+        if (gameState.score >= stageConfig.targetScore){ endGame(true); }
+        else { endGame(false); }
+      } catch(e){ showError('スコア判定に失敗しました: '+e.message); }
+    }
+    function endGame(isSuccess){
+      try {
+        gameState.isPlaying = false;
+        if (gameState.questionTimer){ clearTimeout(gameState.questionTimer); gameState.questionTimer=null; }
+        if (gameState.moleSpawnTimer){ clearTimeout(gameState.moleSpawnTimer); gameState.moleSpawnTimer=null; }
+        if (gameState.progressTimer){ clearInterval(gameState.progressTimer); gameState.progressTimer=null; }
+        if (gameState.moles){ gameState.moles.forEach(m => { if (m && m.userData){ m.userData.isActive=false; clearMoleText(m); }}); } gameState.activeMoles = [];
+        document.getElementById('gameUI').style.display='none'; document.getElementById('resultScreen').style.display='block';
+        const canvas=document.getElementById('threeCanvas'); canvas.className=''; updateCanvasSize();
+        const title = document.getElementById('resultTitle'); const msg = document.getElementById('resultMessage');
+        document.getElementById('correctCount').textContent = gameState.correctAnswers;
+        document.getElementById('mistakeCount').textContent = gameState.mistakes;
+        document.getElementById('finalLevel').textContent = gameState.level;
+        document.getElementById('finalScore').textContent = gameState.score;
+        document.getElementById('completedStages').textContent = selectedStageId;
+        document.getElementById('targetScoreLabel').textContent = stageConfig.targetScore;
+        
+        // Firebase にスコアを保存
+        saveScore(selectedStageId, gameState.score, isSuccess);
+        
+        if (isSuccess){
+          title.textContent = 'ステージクリア！'; title.className='result-title success';
+          msg.textContent = `Stage ${selectedStageId} をクリア！次のステージに進めます。`;
+          setUnlockedStage(selectedStageId+1);
+          // Firebase にユーザーデータを保存
+          saveUserData();
+        } else {
+          title.textContent='ゲームオーバー'; title.className='result-title failure';
+          msg.textContent = `目標スコア ${stageConfig.targetScore} に届きませんでした。もう一度挑戦しよう。`;
+        }
+        buildStageSelect(); // アンロック反映
+      } catch(e){ showError('ゲーム終了処理に失敗しました: '+e.message); }
+    }
+    function resetGameAndReplay(){
+      try {
+        document.getElementById('resultScreen').style.display='none';
+        document.getElementById('startScreen').style.display='block';
+        const canvas=document.getElementById('threeCanvas'); canvas.className=''; updateCanvasSize();
+        selectStage(selectedStageId);
+      } catch(e){ showError('リトライ準備に失敗しました: '+e.message); }
+    }
+    function backToStageSelect(){
+      try {
+        document.getElementById('resultScreen').style.display='none';
+        document.getElementById('stageSelectScreen').style.display='flex';
+        const canvas=document.getElementById('threeCanvas'); canvas.className=''; updateCanvasSize();
+      } catch(e){ showError('ステージ選択へ戻る処理に失敗しました: '+e.message); }
+    }
+
+    /*********************** 初期化 ************************/
+    window.addEventListener('load', ()=>{
+      try {
+        initVoices();
+        initFirebase(); // Firebase初期化
+        setTimeout(()=>{ init3DScene(); buildStageSelect(); }, 100);
+      } catch(e){ showError('初期化に失敗しました: '+e.message); }
+    });
+    window.addEventListener('error', (event)=>{ showError('JavaScript エラー: '+event.message); });
+  </script>
+</body>
+</html>aying = true;
         gameState.usedWords = []; gameState.spawnInterval = 1000; gameState.activeMoles = [];
         for (let i=1;i<=3;i++){ const h = document.getElementById(`heart${i}`); if (h) h.classList.remove('lost'); }
         const maxMist = document.getElementById('maxMistakesLabel'); if (maxMist) maxMist.textContent = stageConfig.hearts;
