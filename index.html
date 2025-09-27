@@ -27,7 +27,21 @@
     .username-input::placeholder { color: rgba(255,255,255,0.6); }
     .username-save-btn { background: linear-gradient(45deg, #FF6B6B, #FF8E53); color: #fff; border: none; padding: 10px 20px; font-size: 0.9rem; border-radius: 25px; cursor: pointer; }
 
-    /* ランキング画面 */
+    /* 設定画面 */
+    .settings-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 15px; backdrop-filter: blur(10px); max-width: 90%; width: 100%; max-width: 400px; display: none; }
+    .settings-title { font-size: 1.5rem; color: #FFD700; margin-bottom: 20px; }
+    .settings-section { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: left; }
+    .settings-section h3 { color: #FFD700; margin-bottom: 10px; font-size: 1rem; }
+    .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .settings-label { font-size: 0.9rem; opacity: 0.9; }
+    .settings-value { font-size: 0.9rem; color: #FFD700; font-weight: bold; }
+    .username-edit { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+    .username-edit input { flex: 1; padding: 8px; border: 1px solid #FFD700; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; font-size: 0.85rem; }
+    .username-edit button { background: #FFD700; color: black; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+    .settings-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .settings-btn { background: #666; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
+    .settings-btn.danger { background: #dc3545; }
+    .settings-btn:hover { opacity: 0.8; }
     .ranking-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); max-width: 95%; width: 100%; max-width: 500px; display: none; }
     .ranking-title { font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
     .ranking-tabs { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -151,6 +165,11 @@
       .stage-select-title { font-size: 1.3rem; }
       .stage-controls { gap: 6px; flex-direction: column; margin-bottom: 10px; }
       .toggle-vocabulary { padding: 6px 12px; font-size: 0.75rem; margin-bottom: 0; }
+      .settings-screen { max-width: 95%; padding: 15px; }
+      .settings-section { padding: 12px; margin-bottom: 12px; }
+      .username-edit { flex-direction: column; gap: 6px; }
+      .username-edit input { margin-bottom: 6px; }
+      .settings-buttons { flex-direction: column; gap: 8px; }
       h1 { font-size: 1.5rem; }
       .subtitle { font-size: 0.9rem; }
       .rules { padding: 10px; font-size: 0.8rem; }
@@ -207,6 +226,50 @@
         <button class="username-save-btn" onclick="saveUsername()">保存してゲーム開始</button>
       </div>
 
+      <!-- 設定画面 -->
+      <div class="settings-screen" id="settingsScreen">
+        <div class="settings-title">⚙️ 設定</div>
+        
+        <div class="settings-section">
+          <h3>アカウント情報</h3>
+          <div class="settings-row">
+            <span class="settings-label">ユーザー名</span>
+            <span class="settings-value" id="currentUsername">-</span>
+          </div>
+          <div class="username-edit" id="usernameEdit" style="display: none;">
+            <input type="text" id="newUsernameInput" placeholder="新しいユーザー名" maxlength="20">
+            <button onclick="saveNewUsername()">保存</button>
+            <button onclick="cancelUsernameEdit()" style="background: #666;">キャンセル</button>
+          </div>
+          <button class="settings-btn" onclick="startUsernameEdit()" id="editUsernameBtn">ユーザー名を変更</button>
+        </div>
+
+        <div class="settings-section">
+          <h3>ゲーム統計</h3>
+          <div class="settings-row">
+            <span class="settings-label">総プレー時間</span>
+            <span class="settings-value" id="settingsPlayTime">-</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">総ゲーム数</span>
+            <span class="settings-value" id="settingsTotalGames">-</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">最高到達ステージ</span>
+            <span class="settings-value" id="settingsMaxStage">-</span>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">登録日</span>
+            <span class="settings-value" id="settingsJoinDate">-</span>
+          </div>
+        </div>
+
+        <div class="settings-buttons">
+          <button class="settings-btn" onclick="closeSettings()">閉じる</button>
+          <button class="settings-btn danger" onclick="confirmDeleteAccount()">アカウント削除</button>
+        </div>
+      </div>
+
       <!-- ランキング画面 -->
       <div class="ranking-screen" id="rankingScreen">
         <div class="ranking-title">🏆 ランキング</div>
@@ -229,6 +292,7 @@
           <div class="stage-controls">
             <button class="toggle-vocabulary" onclick="showRanking('totalScore')">🏆 ランキング</button>
             <button class="toggle-vocabulary" onclick="showStats()">📊 統計情報</button>
+            <button class="toggle-vocabulary" onclick="showSettings()">⚙️ 設定</button>
           </div>
           <div class="stage-grid" id="stageGrid"></div>
           <div class="reset-progress" id="resetProgress">進行状況をリセットする</div>
@@ -677,22 +741,130 @@
       document.getElementById('stageSelectScreen').style.display = 'flex';
     }
 
-    function showStats() {
+    function showSettings() {
       if (!currentUser) {
         showError('ログインしてください');
         return;
       }
       
-      getUserData().then(userData => {
+      document.getElementById('stageSelectScreen').style.display = 'none';
+      document.getElementById('settingsScreen').style.display = 'block';
+      loadSettingsData();
+    }
+
+    async function loadSettingsData() {
+      try {
+        const userData = await getUserData();
         if (!userData) return;
+
+        document.getElementById('currentUsername').textContent = userData.username || 'ユーザー';
         
         const hours = Math.floor((userData.totalPlayTime || 0) / 3600);
         const minutes = Math.floor(((userData.totalPlayTime || 0) % 3600) / 60);
-        const totalGames = userData.totalGames || 0;
-        const unlockedStages = userData.unlockedStages || 1;
+        document.getElementById('settingsPlayTime').textContent = `${hours}時間${minutes}分`;
         
-        alert(`📊 あなたの統計情報\n\n🎮 総プレー時間: ${hours}時間${minutes}分\n🎯 総ゲーム数: ${totalGames}回\n🚀 到達ステージ: ${unlockedStages}/6\n📅 登録日: ${new Date(userData.createdAt).toLocaleDateString()}`);
-      });
+        document.getElementById('settingsTotalGames').textContent = `${userData.totalGames || 0}回`;
+        document.getElementById('settingsMaxStage').textContent = `${userData.unlockedStages || 1}/6`;
+        
+        const joinDate = new Date(userData.createdAt).toLocaleDateString('ja-JP');
+        document.getElementById('settingsJoinDate').textContent = joinDate;
+      } catch (error) {
+        console.error('設定データ読み込みエラー:', error);
+      }
+    }
+
+    function startUsernameEdit() {
+      document.getElementById('usernameEdit').style.display = 'flex';
+      document.getElementById('editUsernameBtn').style.display = 'none';
+      
+      const currentName = document.getElementById('currentUsername').textContent;
+      document.getElementById('newUsernameInput').value = currentName;
+      document.getElementById('newUsernameInput').focus();
+    }
+
+    function cancelUsernameEdit() {
+      document.getElementById('usernameEdit').style.display = 'none';
+      document.getElementById('editUsernameBtn').style.display = 'block';
+      document.getElementById('newUsernameInput').value = '';
+    }
+
+    async function saveNewUsername() {
+      const newUsername = document.getElementById('newUsernameInput').value.trim();
+      
+      if (!newUsername || newUsername.length < 2) {
+        showError('ユーザー名は2文字以上で入力してください');
+        return;
+      }
+
+      if (newUsername.length > 20) {
+        showError('ユーザー名は20文字以下で入力してください');
+        return;
+      }
+
+      if (!isFirebaseReady || !currentUser) return;
+
+      try {
+        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), {
+          username: newUsername,
+          displayName: newUsername,
+          lastUpdated: new Date().toISOString()
+        }, { merge: true });
+
+        document.getElementById('currentUsername').textContent = newUsername;
+        cancelUsernameEdit();
+        updateAccountUI();
+        
+        showSuccess('ユーザー名を変更しました');
+      } catch (error) {
+        console.error('ユーザー名変更エラー:', error);
+        showError('ユーザー名の変更に失敗しました');
+      }
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsScreen').style.display = 'none';
+      document.getElementById('stageSelectScreen').style.display = 'flex';
+    }
+
+    function confirmDeleteAccount() {
+      if (confirm('本当にアカウントを削除しますか？\n\n削除すると、すべてのデータが失われ、復元できません。')) {
+        deleteUserAccount();
+      }
+    }
+
+    async function deleteUserAccount() {
+      if (!isFirebaseReady || !currentUser) return;
+
+      try {
+        // ユーザーデータを削除
+        await window.setDoc(window.doc(window.firebaseDb, 'users', currentUser.uid), {
+          deleted: true,
+          deletedAt: new Date().toISOString()
+        }, { merge: true });
+
+        // ローカルストレージもクリア
+        localStorage.removeItem(STORAGE_KEY_UNLOCK);
+        
+        // ログアウト
+        await window.signOut(window.firebaseAuth);
+        
+        closeSettings();
+        showSuccess('アカウントを削除しました');
+      } catch (error) {
+        console.error('アカウント削除エラー:', error);
+        showError('アカウント削除に失敗しました');
+      }
+    }
+
+    function showSuccess(message) {
+      const d = document.createElement('div');
+      d.className = 'error-message';
+      d.style.background = 'rgba(0,128,0,0.9)';
+      d.textContent = message;
+      document.body.appendChild(d);
+      setTimeout(() => {
+        if (document.body.contains(d)) document.body.removeChild(d);
+      }, 3000);
     }
 
     function updateUserStats() {
